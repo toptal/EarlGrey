@@ -1985,7 +1985,6 @@
 				HEADER_SEARCH_PATHS = (
 					"Submodules/eDistantObject/**",
 					.,
-					../../../,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				ONLY_ACTIVE_ARCH = NO;
@@ -2009,7 +2008,6 @@
 				HEADER_SEARCH_PATHS = (
 					"Submodules/eDistantObject/**",
 					.,
-					../../../,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				ONLY_ACTIVE_ARCH = NO;
@@ -2188,7 +2186,6 @@
 				HEADER_SEARCH_PATHS = (
 					"Submodules/eDistantObject/**",
 					.,
-					../../..,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				OTHER_CFLAGS = "";
@@ -2207,7 +2204,6 @@
 				HEADER_SEARCH_PATHS = (
 					"Submodules/eDistantObject/**",
 					.,
-					../../..,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				OTHER_CFLAGS = "";
@@ -2233,7 +2229,6 @@
 					"Submodules/eDistantObject/**",
 					Submodules/fishhook/,
 					.,
-					../../..,
 				);
 				INFOPLIST_FILE = AppFramework/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -2270,7 +2265,6 @@
 					"Submodules/eDistantObject/**",
 					Submodules/fishhook/,
 					.,
-					../../..,
 				);
 				INFOPLIST_FILE = AppFramework/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -2300,7 +2294,6 @@
 				HEADER_SEARCH_PATHS = (
 					"Submodules/eDistantObject/**",
 					.,
-					../../..,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				ONLY_ACTIVE_ARCH = NO;
@@ -2319,7 +2312,6 @@
 				HEADER_SEARCH_PATHS = (
 					"Submodules/eDistantObject/**",
 					.,
-					../../..,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				OTHER_LDFLAGS = "-ObjC";
