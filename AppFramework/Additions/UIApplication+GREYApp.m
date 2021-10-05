@@ -100,6 +100,8 @@ static NSMutableArray<NSString *> *gRunLoopModes;
 - (void)greyswizzled_endIgnoringInteractionEvents {
   INVOKE_ORIGINAL_IMP(void, @selector(greyswizzled_endIgnoringInteractionEvents));
   // begin/end can be nested, instead of keeping the count, simply use isIgnoringInteractionEvents.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   if (!self.isIgnoringInteractionEvents) {
     GREYAppStateTrackerObject *object =
         objc_getAssociatedObject(self, @selector(greyswizzled_beginIgnoringInteractionEvents));
@@ -107,6 +109,7 @@ static NSMutableArray<NSString *> *gRunLoopModes;
     objc_setAssociatedObject(self, @selector(greyswizzled_beginIgnoringInteractionEvents), nil,
                              OBJC_ASSOCIATION_ASSIGN);
   }
+#pragma clang diagnostic pop
 }
 
 - (void)greyswizzled_pushRunLoopMode:(NSString *)mode requester:(id)requester {
