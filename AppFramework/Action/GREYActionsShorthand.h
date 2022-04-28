@@ -19,11 +19,7 @@
 #import "GREYConstants.h"
 #import "GREYDefines.h"
 
-#if COCOAPODS
-#import <eDistantObject/EDORemoteVariable.h>
-#else
 #import "EDORemoteVariable.h"
-#endif  // COCOAPODS
 
 NS_ASSUME_NONNULL_BEGIN
 
