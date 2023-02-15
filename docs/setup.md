@@ -40,7 +40,7 @@ git clone -b earlgrey2 https://github.com/google/EarlGrey.git
 
 // Download any dependencies. Run this command from the EarlGrey/ root directory
 // as it will download the submodules in the root of the Git repository it is called from.
-sh Scripts/download_deps.sh
+git submodule update --init --recursive
 ```
 
 On doing so, your folder structure inside the EarlGrey repository should look

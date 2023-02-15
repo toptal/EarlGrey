@@ -7,7 +7,7 @@ have been correctly added to the repository:
 ```
 git clone -b earlgrey2 https://github.com/google/EarlGrey.git
 
-sh Scripts/download_deps.sh
+git submodule update --init --recursive
 ```
 
 Once the EarlGrey targets are building,

@@ -12,7 +12,7 @@ To use, please clone the `earlgrey2` branch with its submodules:
 git clone -b earlgrey2 https://github.com/google/EarlGrey.git
 
 // Download any dependencies
-sh Scripts/download_deps.sh
+git submodule update --init --recursive
 ```
 
 # EarlGrey 2.0

@@ -1,5 +1,4 @@
 *~
 *.sw[o-p]
 .DS_Store
-Submodules/
 EarlGrey.xcodeproj/xcuserdata
