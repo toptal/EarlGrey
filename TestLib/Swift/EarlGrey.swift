@@ -181,7 +181,7 @@ private func GREYAssert(
 public func GREYRemoteClassInApp<T: NSObject>(_ classVal: T.Type) -> T.Type {
   let portNumber = GREYTestApplicationDistantObject.sharedInstance.hostPort
   let hostPort = EDOHostPort(port: portNumber, name: nil, deviceSerialNumber: nil)
-  guard let remoteClass: T.Type = EDOClientService<AnyObject>.classObject(withName: String(describing: T.self), hostPort: hostPort) as? T.Type else {
+  guard let remoteClass = remoteClassObject(of: classVal, on: hostPort) else {
     GREYFail("Failed to fetch remote class \(classVal)", "The class does not exist in the app")
     // GREYFail will interrupt the test and the execution will never reach this line.
     return classVal
