@@ -165,10 +165,12 @@ static void DedupeAndAppendAnimationInfoForLayerOfView(
     NSMutableDictionary<NSString *, NSString *> *animationDictionary) {
   for (NSString *animationKey in layer.animationKeys) {
     CAAnimation *animation = [layer animationForKey:animationKey];
-    NSString *animationInfo =
-        [NSString stringWithFormat:@"\nUIView: %@\n    AnimationKey: %@ withAnimation: %@",
-                                   [view grey_objectDescription], animationKey, animation];
-    [animationDictionary setObject:animationInfo forKey:animation.description];
+    if (animation != nil) {
+      NSString *animationInfo =
+          [NSString stringWithFormat:@"\nUIView: %@\n    AnimationKey: %@ withAnimation: %@",
+                                     [view grey_objectDescription], animationKey, animation];
+      [animationDictionary setObject:animationInfo forKey:animation.description];
+    }
   }
 }
 
