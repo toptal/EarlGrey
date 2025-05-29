@@ -33,6 +33,11 @@ id<GREYMatcher> GREYAccessibilityLabel(NSString *label) {
 }
 id<GREYMatcher> grey_accessibilityLabel(NSString *label) { return GREYAccessibilityLabel(label); }
 
+id<GREYMatcher> GREYRawAccessibilityLabel(NSString *label) {
+  return [GREYMatchers matcherForRawAccessibilityLabel:label];
+}
+id<GREYMatcher> grey_rawAccessibilityLabel(NSString *label) { return GREYRawAccessibilityLabel(label); }
+
 id<GREYMatcher> GREYAccessibilityID(NSString *accessibilityID) {
   return [GREYMatchers matcherForAccessibilityID:accessibilityID];
 }
@@ -44,6 +49,11 @@ id<GREYMatcher> GREYAccessibilityValue(NSString *value) {
   return [GREYMatchers matcherForAccessibilityValue:value];
 }
 id<GREYMatcher> grey_accessibilityValue(NSString *value) { return GREYAccessibilityValue(value); }
+
+id<GREYMatcher> GREYRawAccessibilityValue(NSString *value) {
+  return [GREYMatchers matcherForRawAccessibilityValue:value];
+}
+id<GREYMatcher> grey_rawAccessibilityValue(NSString *value) { return GREYRawAccessibilityValue(value); }
 
 id<GREYMatcher> GREYAccessibilityTrait(UIAccessibilityTraits traits) {
   return [GREYMatchers matcherForAccessibilityTraits:traits];
@@ -57,6 +67,11 @@ id<GREYMatcher> GREYAccessibilityHint(NSString *hint) {
   return [GREYMatchers matcherForAccessibilityHint:hint];
 }
 id<GREYMatcher> grey_accessibilityHint(NSString *hint) { return GREYAccessibilityHint(hint); }
+
+id<GREYMatcher> GREYRawAccessibilityHint(NSString *hint) {
+  return [GREYMatchers matcherForRawAccessibilityHint:hint];
+}
+id<GREYMatcher> grey_rawAccessibilityHint(NSString *hint) { return GREYRawAccessibilityHint(hint); }
 
 id<GREYMatcher> GREYAccessibilityFocused(void) {
   return [GREYMatchers matcherForAccessibilityElementIsFocused];

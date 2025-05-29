@@ -187,6 +187,21 @@ static NSString *const kActivitySheetContainerClass = @"_UISceneLayerHostContain
                                 matchers:MatcherWithAccessibilityElement(customMatcher)];
 }
 
++ (id<GREYMatcher>)matcherForRawAccessibilityLabel:(NSString *)label {
+  NSString *prefix = @"accessibilityLabel";
+  GREYMatchesBlock matches = ^BOOL(NSObject *element) {
+    return [self accessibilityString:element.accessibilityLabel isEqualToAccessibilityString:label];
+  };
+  GREYDescribeToBlock describe = ^void(id<GREYDescription> description) {
+    [description appendText:[NSString stringWithFormat:@"%@('%@')", prefix, label]];
+  };
+  id<GREYMatcher> customMatcher = [[GREYElementMatcherBlock alloc] initWithMatchesBlock:matches
+                                                                       descriptionBlock:describe];
+  NSString *name = GREYCorePrefixedDiagnosticsID(prefix);
+  return [[GREYAllOf alloc] initWithName:name
+                                matchers:@[customMatcher]];
+}
+
 + (id<GREYMatcher>)matcherForAccessibilityID:(NSString *)accessibilityID {
   NSString *prefix = @"accessibilityID";
   GREYMatchesBlock matches = ^BOOL(id<UIAccessibilityIdentification> element) {
@@ -225,6 +240,25 @@ static NSString *const kActivitySheetContainerClass = @"_UISceneLayerHostContain
                                 matchers:MatcherWithAccessibilityElement(customMatcher)];
 }
 
++ (id<GREYMatcher>)matcherForRawAccessibilityValue:(NSString *)value {
+  NSString *prefix = @"accessibilityValue";
+  GREYMatchesBlock matches = ^BOOL(NSObject *element) {
+    NSString *accessibilityValue = element.accessibilityValue ?: @"";
+    if ([accessibilityValue isEqualToString:value]) {
+      return YES;
+    }
+    return [self accessibilityString:element.accessibilityValue isEqualToAccessibilityString:value];
+  };
+  GREYDescribeToBlock describe = ^void(id<GREYDescription> description) {
+    [description appendText:[NSString stringWithFormat:@"%@('%@')", prefix, value]];
+  };
+  id<GREYMatcher> customMatcher = [[GREYElementMatcherBlock alloc] initWithMatchesBlock:matches
+                                                                       descriptionBlock:describe];
+  NSString *name = GREYCorePrefixedDiagnosticsID(prefix);
+  return [[GREYAllOf alloc] initWithName:name
+                                matchers:@[customMatcher]];
+}
+
 + (id<GREYMatcher>)matcherForAccessibilityTraits:(UIAccessibilityTraits)traits {
   NSString *prefix = @"accessibilityTraits";
   GREYMatchesBlock matches = ^BOOL(NSObject *element) {
@@ -239,6 +273,25 @@ static NSString *const kActivitySheetContainerClass = @"_UISceneLayerHostContain
   NSString *name = GREYCorePrefixedDiagnosticsID(prefix);
   return [[GREYAllOf alloc] initWithName:name
                                 matchers:MatcherWithAccessibilityElement(customMatcher)];
+}
+
++ (id<GREYMatcher>)matcherForRawAccessibilityHint:(id)hint {
+  NSString *prefix = @"accessibilityHint";
+  GREYMatchesBlock matches = ^BOOL(NSObject *element) {
+    id accessibilityHint = element.accessibilityHint;
+    if (accessibilityHint == hint) {
+      return YES;
+    }
+    return [self accessibilityString:accessibilityHint isEqualToAccessibilityString:hint];
+  };
+  GREYDescribeToBlock describe = ^void(id<GREYDescription> description) {
+    [description appendText:[NSString stringWithFormat:@"%@('%@')", prefix, hint]];
+  };
+  id<GREYMatcher> customMatcher = [[GREYElementMatcherBlock alloc] initWithMatchesBlock:matches
+                                                                       descriptionBlock:describe];
+  NSString *name = GREYCorePrefixedDiagnosticsID(prefix);
+  return [[GREYAllOf alloc] initWithName:name
+                                matchers:@[customMatcher]];
 }
 
 + (id<GREYMatcher>)matcherForAccessibilityHint:(id)hint {

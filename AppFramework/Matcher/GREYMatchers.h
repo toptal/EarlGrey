@@ -46,6 +46,15 @@ NS_ASSUME_NONNULL_BEGIN
 + (id<GREYMatcher>)matcherForAccessibilityLabel:(NSString *)label;
 
 /**
+ * Matcher for UI element with the provided accessibility @c label.
+ *
+ * @param label The accessibility label to be matched.
+ *
+ * @return A matcher for the accessibility label of any element.
+ */
++ (id<GREYMatcher>)matcherForRawAccessibilityLabel:(NSString *)label;
+
+/**
  * Matcher for UI element with the provided accessibility ID @c accessibilityID.
  *
  * @param accessibilityID The accessibility ID to be matched.
@@ -62,6 +71,15 @@ NS_ASSUME_NONNULL_BEGIN
  * @return A matcher for the accessibility value of an accessible element.
  */
 + (id<GREYMatcher>)matcherForAccessibilityValue:(NSString *)value;
+
+/**
+ * Matcher for UI element with the provided accessibility @c value.
+ *
+ * @param value The accessibility value to be matched.
+ *
+ * @return A matcher for the accessibility value of any element.
+ */
++ (id<GREYMatcher>)matcherForRawAccessibilityValue:(NSString *)value;
 
 /**
  * Matcher for UI element with the provided accessibility @c traits.
@@ -81,6 +99,15 @@ NS_ASSUME_NONNULL_BEGIN
  * @return A matcher for the accessibility hint of an accessible element.
  */
 + (id<GREYMatcher>)matcherForAccessibilityHint:(NSString *)hint;
+
+/**
+ * Matcher for UI element with the provided accessiblity @c hint.
+ *
+ * @param hint The accessibility hint to be matched.
+ *
+ * @return A matcher for the accessibility hint of any element.
+ */
++ (id<GREYMatcher>)matcherForRawAccessibilityHint:(NSString *)hint;
 
 /**
  * Matcher for UI element with accessiblity focus.

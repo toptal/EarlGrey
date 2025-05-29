@@ -31,6 +31,9 @@ NS_ASSUME_NONNULL_BEGIN
 GREY_EXPORT id<GREYMatcher> grey_accessibilityLabel(NSString *label);
 GREY_EXPORT id<GREYMatcher> GREYAccessibilityLabel(NSString *label);
 
+GREY_EXPORT id<GREYMatcher> grey_rawAccessibilityLabel(NSString *label);
+GREY_EXPORT id<GREYMatcher> GREYRawAccessibilityLabel(NSString *label);
+
 /**
  * Shorthand for GREYMatchers::matcherForAccessibilityID:.
  *
@@ -44,6 +47,10 @@ GREY_EXPORT id<GREYMatcher> GREYAccessibilityID(NSString *accessibilityID);
 GREY_EXPORT id<GREYMatcher> grey_accessibilityValue(NSString *grey_accessibilityValue);
 GREY_EXPORT id<GREYMatcher> GREYAccessibilityValue(NSString *grey_accessibilityValue);
 
+/** Shorthand for GREYMatchers::matcherForRawAccessibilityValue:. */
+GREY_EXPORT id<GREYMatcher> grey_rawAccessibilityValue(NSString *grey_accessibilityValue);
+GREY_EXPORT id<GREYMatcher> GREYRawAccessibilityValue(NSString *grey_accessibilityValue);
+
 /** Shorthand for GREYMatchers::matcherForAccessibilityTraits:. */
 GREY_EXPORT id<GREYMatcher> grey_accessibilityTrait(UIAccessibilityTraits traits);
 GREY_EXPORT id<GREYMatcher> GREYAccessibilityTrait(UIAccessibilityTraits traits);
@@ -55,6 +62,10 @@ GREY_EXPORT id<GREYMatcher> GREYAccessibilityFocused(void);
 /** Shorthand for GREYMatchers::matcherForAccessibilityHint:. */
 GREY_EXPORT id<GREYMatcher> grey_accessibilityHint(NSString *hint);
 GREY_EXPORT id<GREYMatcher> GREYAccessibilityHint(NSString *hint);
+
+/** Shorthand for GREYMatchers::matcherForAccessibilityHint:. */
+GREY_EXPORT id<GREYMatcher> grey_rawAccessibilityHint(NSString *hint);
+GREY_EXPORT id<GREYMatcher> GREYRawAccessibilityHint(NSString *hint);
 
 /** Shorthand for GREYMatchers::matcherForAccessibilityElement. */
 GREY_EXPORT id<GREYMatcher> grey_accessibilityElement(void);
