@@ -391,7 +391,7 @@ inline void GREYVisibilityDiffBufferSetVisibility(GREYVisibilityDiffBuffer buffe
                                               thatAreShiftedPixelsOfImage:beforeImage
                                               storeVisiblePixelRectInRect:NULL
                                          andStoreComparisonResultInBuffer:NULL];
-    percentVisible = (CGFloat)visiblePixelData.visiblePixelCount / countTotalSearchRectPixels;
+    percentVisible = (double)visiblePixelData.visiblePixelCount / countTotalSearchRectPixels;
   }
 
   CGImageRelease(beforeImage);
@@ -695,7 +695,7 @@ inline void GREYVisibilityDiffBufferSetVisibility(GREYVisibilityDiffBuffer buffe
       CGRect thisLargest = CGRectLargestRectInHistogram(&histograms[idx * width], (uint16_t)width);
       if (CGRectArea(thisLargest) > CGRectArea(largestRect)) {
         // Because our histograms point up, not down.
-        thisLargest.origin.y = (CGFloat)idx - thisLargest.size.height + 1;
+        thisLargest.origin.y = (CGFloat)idx - thisLargest.size.height + 1.0;
         largestRect = thisLargest;
       }
     }
