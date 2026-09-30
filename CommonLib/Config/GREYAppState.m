@@ -16,7 +16,7 @@
 
 #import "GREYAppState.h"
 
-static NSDictionary<NSNumber *, NSString *> *GREYStateTrackerDescriptions() {
+static NSDictionary<NSNumber *, NSString *> *GREYStateTrackerDescriptions(void) {
   static dispatch_once_t onceToken;
   static NSDictionary<NSNumber *, NSString *> *descriptions;
   dispatch_once(&onceToken, ^{

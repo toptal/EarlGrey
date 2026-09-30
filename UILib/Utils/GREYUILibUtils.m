@@ -62,12 +62,12 @@ UIWindow *GREYUILibUtilsGetApplicationKeyWindow(UIApplication *application) {
 }
 
 /** @return The UIWindow for the keyboard. */
-UIWindow *GREYUILibUtilsGetKeyboardWindow() {
+UIWindow *GREYUILibUtilsGetKeyboardWindow(void) {
   return [(UIView *)[UIKeyboardImpl sharedInstance] window];
 }
 
 /** @return An array of UIWindow related to the connected scenes. */
-NSArray<UIWindow *> *GREYUILibUtilsGetAllWindowsFromConnectedScenes() {
+NSArray<UIWindow *> *GREYUILibUtilsGetAllWindowsFromConnectedScenes(void) {
   UIApplication *sharedApp = UIApplication.sharedApplication;
   NSMutableArray<UIWindow *> *windows = [[NSMutableArray alloc] init];
   if (@available(iOS 16.0, *)) {

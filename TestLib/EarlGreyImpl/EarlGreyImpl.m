@@ -272,7 +272,11 @@ static BOOL RouteURLInApp(NSURL *targetURL, double timeoutInSeconds) {
     return [delegate application:app openURL:targetURL options:@{}];
   }
   if ([delegate respondsToSelector:@selector(application:openURL:sourceApplication:annotation:)]) {
+    // Preserve the legacy delegate fallback while keeping deprecation errors enabled elsewhere.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return [delegate application:app openURL:targetURL sourceApplication:nil annotation:@{}];
+#pragma clang diagnostic pop
   }
 
   // Step D: Fallback to system openURL if neither scene nor app delegates handle custom URLs.
