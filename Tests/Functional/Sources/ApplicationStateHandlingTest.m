@@ -15,6 +15,139 @@
 //
 
 #import "EarlGrey.h"
+#import "XCUIApplication+GREYTest.h"
+
+#import <objc/runtime.h>
+
+// Runtime fault injection is required here: Sourcery/Mimus cannot replace Objective-C XCTest
+// methods or the NSTimer class factory. The inherited launch method still executes EarlGrey's
+// real launch implementation; grey_launch substitutes only the original XCTest implementation.
+@interface GREYLaunchTimerTestApplication : XCUIApplication
+@property(nonatomic, copy) void (^originalLaunch)(void);
+@property(nonatomic, copy) NSString * (^readIdentifier)(void);
+@property(nonatomic, copy) NSString * (^readLabel)(void);
+@end
+
+@implementation GREYLaunchTimerTestApplication
+- (void)modifyKeyboardSettings {}
+- (void)grey_configureApplicationForLaunch {}
+- (void)grey_launch {
+  if (self.originalLaunch) {
+    self.originalLaunch();
+  }
+}
+- (NSString *)identifier {
+  return self.readIdentifier ? self.readIdentifier() : @"com.google.earlgrey.launch-timer-test";
+}
+- (NSString *)label {
+  return self.readLabel ? self.readLabel() : @"Launch timer test";
+}
+@end
+
+@interface ApplicationLaunchTimerCleanupTest : XCTestCase
+@property(nonatomic, strong) NSTimer *launchTimer;
+@end
+
+@implementation ApplicationLaunchTimerCleanupTest {
+  GREYLaunchTimerTestApplication *_application;
+  Method _timerFactory;
+  IMP _originalTimerFactory;
+  IMP _controlledTimerFactory;
+  id _originalTestRigName;
+}
+
+- (void)setUp {
+  [super setUp];
+  _application = [[GREYLaunchTimerTestApplication alloc] init];
+  _originalTestRigName = XCUIApplication.greyTestRigName;
+  _timerFactory = class_getClassMethod([NSTimer class],
+                                      @selector(scheduledTimerWithTimeInterval:repeats:block:));
+  __weak ApplicationLaunchTimerCleanupTest *weakSelf = self;
+  _controlledTimerFactory = imp_implementationWithBlock(
+      ^NSTimer *(id timerClass, NSTimeInterval interval, BOOL repeats, void (^block)(NSTimer *)) {
+        NSTimer *timer = [NSTimer timerWithTimeInterval:interval repeats:repeats block:block];
+        weakSelf.launchTimer = timer;
+        return timer;
+      });
+  _originalTimerFactory = method_setImplementation(_timerFactory, _controlledTimerFactory);
+}
+
+- (void)tearDown {
+  method_setImplementation(_timerFactory, _originalTimerFactory);
+  imp_removeBlock(_controlledTimerFactory);
+  [self.launchTimer invalidate];
+  self.launchTimer = nil;
+  _application = nil;
+  objc_setAssociatedObject([XCUIApplication class], @selector(greyTestRigName), _originalTestRigName,
+                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+  [super tearDown];
+}
+
+- (void)testOriginalLaunchExceptionInvalidatesTimer {
+  __weak ApplicationLaunchTimerCleanupTest *weakSelf = self;
+  __block BOOL timerWasArmed = NO;
+  _application.originalLaunch = ^{
+    timerWasArmed = weakSelf.launchTimer.valid;
+    [NSException raise:@"InjectedLaunchFailure" format:@"Original launch failed"];
+  };
+  XCTAssertThrowsSpecificNamed([_application launch], NSException, @"InjectedLaunchFailure");
+  XCTAssertTrue(timerWasArmed);
+  XCTAssertFalse(self.launchTimer.valid);
+}
+
+- (void)testIdentifierExceptionInvalidatesTimer {
+  __weak ApplicationLaunchTimerCleanupTest *weakSelf = self;
+  __block BOOL timerWasArmed = NO;
+  _application.readIdentifier = ^NSString * {
+    timerWasArmed = weakSelf.launchTimer.valid;
+    [NSException raise:@"InjectedIdentifierFailure" format:@"Identifier query failed"];
+    return nil;
+  };
+  XCTAssertThrowsSpecificNamed([_application launch], NSException, @"InjectedIdentifierFailure");
+  XCTAssertTrue(timerWasArmed);
+  XCTAssertFalse(self.launchTimer.valid);
+}
+
+- (void)testLabelExceptionInvalidatesTimer {
+  __weak ApplicationLaunchTimerCleanupTest *weakSelf = self;
+  __block BOOL timerWasArmed = NO;
+  _application.readIdentifier = ^NSString * { return @""; };
+  _application.readLabel = ^NSString * {
+    timerWasArmed = weakSelf.launchTimer.valid;
+    [NSException raise:@"InjectedLabelFailure" format:@"Label query failed"];
+    return nil;
+  };
+  XCTAssertThrowsSpecificNamed([_application launch], NSException, @"InjectedLabelFailure");
+  XCTAssertTrue(timerWasArmed);
+  XCTAssertFalse(self.launchTimer.valid);
+}
+
+- (void)testSuccessfulLaunchKeepsTimerArmedThroughBookkeeping {
+  __weak ApplicationLaunchTimerCleanupTest *weakSelf = self;
+  NSMutableArray<NSNumber *> *timerStates = [[NSMutableArray alloc] init];
+  _application.originalLaunch = ^{ [timerStates addObject:@(weakSelf.launchTimer.valid)]; };
+  _application.readIdentifier = ^NSString * {
+    [timerStates addObject:@(weakSelf.launchTimer.valid)];
+    return @"";
+  };
+  _application.readLabel = ^NSString * {
+    [timerStates addObject:@(weakSelf.launchTimer.valid)];
+    return @"Launch timer test";
+  };
+  XCTAssertNoThrow([_application launch]);
+  XCTAssertEqualObjects(timerStates, (@[ @YES, @YES, @YES ]));
+  XCTAssertEqualObjects(XCUIApplication.greyTestRigName, @"Launch timer test");
+  XCTAssertFalse(self.launchTimer.valid);
+}
+
+- (void)testLaunchTimeoutStillRaisesAndInvalidatesTimer {
+  __weak ApplicationLaunchTimerCleanupTest *weakSelf = self;
+  // Advance the captured timer explicitly; never wait for real time to pass.
+  _application.originalLaunch = ^{ [weakSelf.launchTimer fire]; };
+  XCTAssertThrowsSpecificNamed([_application launch], NSException, kGREYGenericFailureException);
+  XCTAssertFalse(self.launchTimer.valid);
+}
+@end
 
 @interface ApplicationStateHandlingTest : XCTestCase
 @end
