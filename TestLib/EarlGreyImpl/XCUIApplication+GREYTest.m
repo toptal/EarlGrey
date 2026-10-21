@@ -91,13 +91,17 @@
   // timeout never fires and XCTest's own "main thread busy" watchdog wins the race, producing a
   // confusing, flaky failure instead of EarlGrey's clear launch timeout error.
   NSTimer *validTimer = AddTimerForLaunchTimeout();
-  INVOKE_ORIGINAL_IMP(void, @selector(grey_launch));
-  // When the identifier is @c nil or empty, it is the TestRig application being launched.
-  if (self.identifier.length == 0) {
-    objc_setAssociatedObject([XCUIApplication class], @selector(greyTestRigName), self.label,
-                             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+  @try {
+    INVOKE_ORIGINAL_IMP(void, @selector(grey_launch));
+    // When the identifier is @c nil or empty, it is the TestRig application being launched.
+    if (self.identifier.length == 0) {
+      objc_setAssociatedObject([XCUIApplication class], @selector(greyTestRigName), self.label,
+                               OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+  } @finally {
+    // A failed launch or accessibility query must not leave a timer that can fail a later test.
+    [validTimer invalidate];
   }
-  [validTimer invalidate];
   GREYLog(@"Application Launch Completed. UI Test with EarlGrey Starting");
 }
 

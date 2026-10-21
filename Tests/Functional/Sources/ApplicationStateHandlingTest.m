@@ -15,8 +15,148 @@
 //
 
 #import "EarlGrey.h"
+#import "GREYFrameworkException.h"
+#import "GREYSwizzler.h"
 
 @interface ApplicationStateHandlingTest : XCTestCase
+@end
+
+static NSMutableArray<NSTimer *> *gCapturedLaunchTimers;
+static NSString *const kInjectedLaunchException = @"InjectedLaunchException";
+
+@interface NSTimer (LaunchTimerCleanupTest)
++ (NSTimer *)launchTest_scheduledTimerWithTimeInterval:(NSTimeInterval)interval
+                                             repeats:(BOOL)repeats
+                                               block:(void (^)(NSTimer *timer))block;
+@end
+
+@implementation NSTimer (LaunchTimerCleanupTest)
+
++ (NSTimer *)launchTest_scheduledTimerWithTimeInterval:(NSTimeInterval)interval
+                                             repeats:(BOOL)repeats
+                                               block:(void (^)(NSTimer *timer))block {
+  NSTimer *timer = [self launchTest_scheduledTimerWithTimeInterval:interval repeats:repeats block:block];
+  if (!repeats && interval == GREY_CONFIG_DOUBLE(kGREYConfigKeyAppLaunchTimeout)) {
+    [gCapturedLaunchTimers addObject:timer];
+  }
+  return timer;
+}
+
+@end
+
+typedef NS_ENUM(NSUInteger, LaunchFailureStage) {
+  LaunchFailureStageNone,
+  LaunchFailureStageLaunch,
+  LaunchFailureStageIdentifier,
+  LaunchFailureStageLabel,
+  LaunchFailureStageTimeoutDuringLabel,
+};
+
+// Objective-C overrides are needed to inject XCUIApplication failures; Sourcery's Swift mocks
+// cannot replace these framework methods. The inherited launch method still exercises grey_launch.
+@interface LaunchTimerTestApplication : XCUIApplication
+@property(nonatomic) LaunchFailureStage failureStage;
+@end
+
+@implementation LaunchTimerTestApplication
+
+// EarlGrey's launch wrapper invokes this selector as the original XCTest implementation.
+- (void)grey_launch {
+  if (self.failureStage == LaunchFailureStageLaunch) {
+    [NSException raise:kInjectedLaunchException format:@"Injected launch failure"];
+  }
+}
+
+- (NSString *)identifier {
+  if (self.failureStage == LaunchFailureStageIdentifier) {
+    [NSException raise:kInjectedLaunchException format:@"Injected identifier query failure"];
+  }
+  return @"";
+}
+
+- (NSString *)label {
+  if (self.failureStage == LaunchFailureStageLabel) {
+    [NSException raise:kInjectedLaunchException format:@"Injected label query failure"];
+  }
+  if (self.failureStage == LaunchFailureStageTimeoutDuringLabel) {
+    [gCapturedLaunchTimers.lastObject fire];
+  }
+  return @"TestRig";
+}
+
+- (void)modifyKeyboardSettings {
+  // No real application is launched by this test double.
+}
+
+@end
+
+@interface ApplicationLaunchTimerCleanupTest : XCTestCase
+@end
+
+@implementation ApplicationLaunchTimerCleanupTest
+
+- (void)setUp {
+  [super setUp];
+  gCapturedLaunchTimers = [[NSMutableArray alloc] init];
+  GREYSwizzler *swizzler = [[GREYSwizzler alloc] init];
+  [self addTeardownBlock:^{
+    for (NSTimer *timer in gCapturedLaunchTimers) {
+      [timer invalidate];
+    }
+    [swizzler resetAll];
+    gCapturedLaunchTimers = nil;
+  }];
+  XCTAssertTrue([swizzler swizzleClass:[NSTimer class]
+                  replaceClassMethod:@selector(scheduledTimerWithTimeInterval:repeats:block:)
+                          withMethod:@selector(launchTest_scheduledTimerWithTimeInterval:repeats:block:)]);
+}
+
+- (void)testSuccessfulLaunchInvalidatesTimer {
+  [[[LaunchTimerTestApplication alloc] init] launch];
+  XCTAssertEqual(gCapturedLaunchTimers.count, 1u);
+  XCTAssertFalse(gCapturedLaunchTimers.lastObject.isValid);
+}
+
+- (void)testLaunchExceptionInvalidatesTimer {
+  [self assertTimerInvalidatedAfterFailureAtStage:LaunchFailureStageLaunch];
+}
+
+- (void)testIdentifierExceptionInvalidatesTimer {
+  [self assertTimerInvalidatedAfterFailureAtStage:LaunchFailureStageIdentifier];
+}
+
+- (void)testLabelExceptionInvalidatesTimer {
+  [self assertTimerInvalidatedAfterFailureAtStage:LaunchFailureStageLabel];
+}
+
+- (void)testTimeoutRemainsActiveDuringLabelQuery {
+  LaunchTimerTestApplication *application = [[LaunchTimerTestApplication alloc] init];
+  application.failureStage = LaunchFailureStageTimeoutDuringLabel;
+  XCTAssertThrowsSpecificNamed([application launch], GREYFrameworkException, kGREYGenericFailureException);
+  XCTAssertEqual(gCapturedLaunchTimers.count, 1u);
+  XCTAssertFalse(gCapturedLaunchTimers.lastObject.isValid);
+}
+
+- (void)testFailedLaunchTimerCannotFailTheNextLaunch {
+  LaunchTimerTestApplication *application = [[LaunchTimerTestApplication alloc] init];
+  application.failureStage = LaunchFailureStageIdentifier;
+  XCTAssertThrowsSpecificNamed([application launch], NSException, kInjectedLaunchException);
+  NSTimer *failedLaunchTimer = gCapturedLaunchTimers.lastObject;
+
+  application.failureStage = LaunchFailureStageNone;
+  XCTAssertNoThrow([application launch]);
+  XCTAssertEqual(gCapturedLaunchTimers.count, 2u);
+  XCTAssertNoThrow([failedLaunchTimer fire]);
+}
+
+- (void)assertTimerInvalidatedAfterFailureAtStage:(LaunchFailureStage)stage {
+  LaunchTimerTestApplication *application = [[LaunchTimerTestApplication alloc] init];
+  application.failureStage = stage;
+  XCTAssertThrowsSpecificNamed([application launch], NSException, kInjectedLaunchException);
+  XCTAssertEqual(gCapturedLaunchTimers.count, 1u);
+  XCTAssertFalse(gCapturedLaunchTimers.lastObject.isValid);
+}
+
 @end
 
 @implementation ApplicationStateHandlingTest {
