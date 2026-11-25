@@ -1,5 +1,5 @@
 # AGENTS.md
 
-## Jira
+## Delivery
 
-Create Jira tickets for this repository in the `TAPS` project by default.
+For Jira routing or delivery guidance, see the [Deliver Work policy](docs/deliver-work.md).
